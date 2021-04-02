@@ -1,7 +1,7 @@
 """
 Much of the code is modified from https://github.com/yoonkim/CNN_sentence
 """
-import cPickle
+import _pickle as cPickle
 import numpy as np
 from collections import defaultdict, OrderedDict
 import theano
@@ -47,7 +47,7 @@ def train_conv_net(datasets,
                   ("dropout", dropout_rate), ("batch_size",batch_size),("non_static", non_static),
                     ("learn_decay",lr_decay), ("conv_non_linear", conv_non_linear), ("non_static", non_static)
                     ,("sqr_norm_lim",sqr_norm_lim),("shuffle_batch",shuffle_batch),('sentence dropout rate',sen_dropout_rate)]
-    print parameters
+    print(parameters)
 
     #define model architecture
     index = T.lscalar()
@@ -240,7 +240,7 @@ def train_conv_net(datasets,
                                          y:test_set_y[index*test_batch_size:(index+1)*test_batch_size],
                                      mark:test_set_mark[index*test_batch_size:(index+1)*test_batch_size],})
 
-    print '... training'
+    print('... training')
     epoch = 0
     best_val_perf = 0
     val_perf = 0
@@ -254,16 +254,16 @@ def train_conv_net(datasets,
     #first training on sentences
     best_sen_val = 0.0
     if whether_train_sen == True:
-        print 'pre-train on sentences'
+        print('pre-train on sentences')
         while(epoch < 20):
             sen_costs = []
             train_sen = train_set_with_sen_label
             train_sentences = util.doc_to_sen(train_sen)
             train_sentences = util.remove(train_sentences)
             train_sentences = util.downsample_three(train_sentences)
-            print "positive sentences after sampling: " + str(np.sum(train_sentences[:,-1]==2))
-            print "negative sentences after sampling: " + str(np.sum(train_sentences[:,-1]==0))
-            print "neutral sentences after sampling: " + str(np.sum(train_sentences[:,-1]==1))
+            print( "positive sentences after sampling: " + str(np.sum(train_sentences[:,-1]==2)))
+            print( "negative sentences after sampling: " + str(np.sum(train_sentences[:,-1]==0)))
+            print( "neutral sentences after sampling: " + str(np.sum(train_sentences[:,-1]==1)))
             train_sentences = np.random.permutation(train_sentences)
             if train_sentences.shape[0]%sen_batch_size!=0:
                         extra_data_num = sen_batch_size - train_sentences.shape[0] % sen_batch_size
@@ -281,19 +281,19 @@ def train_conv_net(datasets,
                         sen_costs.append(cur_sen_cost)
                         set_zero(zero_vec)
 
-            print "training sentence cost: " + str(sum(sen_costs)/len(sen_costs))
+            print("training sentence cost: " + str(sum(sen_costs)/len(sen_costs)))
             val_sen = val_set_with_sen_label
             val_sentences = util.doc_to_sen(val_sen)
             val_sentences = util.remove(val_sentences)
-            print "positive sentences in the validation set: " + str(np.sum(val_sentences[:,-1]==2))
-            print "negative sentences in the validation set: " + str(np.sum(val_sentences[:,-1]==0))
-            print "neutral sentences in the validation set: " + str(np.sum(val_sentences[:,-1]==1))
+            print("positive sentences in the validation set: " + str(np.sum(val_sentences[:,-1]==2)))
+            print("negative sentences in the validation set: " + str(np.sum(val_sentences[:,-1]==0)))
+            print("neutral sentences in the validation set: " + str(np.sum(val_sentences[:,-1]==1)))
             val_sen_x,val_sen_y = shared_dataset((val_sentences[:,:-1],val_sentences[:,-1]))
             val_sen_model = theano.function([],sen_classifier1.errors(sen_y),
                                                 givens={
                                                     sen_x:val_sen_x,sen_y:val_sen_y})
             val_accuracy = 1 - val_sen_model()
-            print "validation sentence accuracy: " + str(val_accuracy)
+            print("validation sentence accuracy: " + str(val_accuracy))
             if val_accuracy > best_sen_val:
                  best_sen_val = val_accuracy
                  for i,p in enumerate(best_sen_param):
@@ -320,12 +320,12 @@ def train_conv_net(datasets,
         val_losses = [val_model(i) for i in xrange(n_val_batches)]
         val_perf = 1- np.mean(val_losses)
         print('epoch: %i, training time: %.2f secs, train perf: %.2f %%, val perf: %.2f %%' % (epoch,
-                                                        time.time()-start_time, train_perf * 100., val_perf*100.))
+                                                        time.time()-start_time, train_perf * 100., val_perf*100.)))
         if val_perf >= best_val_perf:
             best_val_perf = val_perf
             test_loss = [test_model_all(i) for i in xrange(n_test_batches)]
             test_perf = 1- np.sum(test_loss)/float(test_size)
-            print "best test performance so far: " + str(test_perf)
+            print("best test performance so far: " + str(test_perf))
     test_loss = [test_model_all(i) for i in xrange(n_test_batches)]
     new_test_loss = []
     for i in test_loss:
@@ -337,22 +337,22 @@ def train_conv_net(datasets,
 
     # sample two correctly predicted positive documents and two correctly predicted negative documents
     # for each document, generate top five rationales with highest probabilities
-    print "negative estimated rationales: "
-    print len(idx_word_map)
+    print("negative estimated rationales: "))
+    print(len(idx_word_map))
     for c in correct_index:
         if test_labels[c] == 1:continue
-        print util.convert(sorted_sentence_value(c)[0],idx_word_map)
-        print sorted_prob_val(c)
+        print(util.convert(sorted_sentence_value(c)[0],idx_word_map))
+        print(sorted_prob_val(c))
         count_pos += 1
         if count_pos == 2:
             break
 
     count_neg = 0
-    print "positive estimated rationales: "
+    print("positive estimated rationales: "
     for c in correct_index:
         if test_labels[c] == 0:continue
-        print util.convert(sorted_sentence_value(c)[0],idx_word_map)
-        print sorted_prob_val(c)
+        print(util.convert(sorted_sentence_value(c)[0],idx_word_map))
+        print(sorted_prob_val(c))
         count_neg += 1
         if count_neg == 2:
             break
@@ -507,36 +507,36 @@ def make_idx_data_cv(revs, word_idx_map, cv, max_sen_len=40,max_Doc_len=40, filt
 
     train = np.array(train,dtype="int")
     test = np.array(test,dtype="int")
-    print "train shape: " + str(train.shape)
-    print "test shape: " + str(test.shape)
-    print "positive documents in test set: " + str(sum(test_y))
-    print "positive documents in training set: " + str(sum(train_y))
+    print("train shape: " + str(train.shape))
+    print("test shape: " + str(test.shape))
+    print("positive documents in test set: " + str(sum(test_y)))
+    print("positive documents in training set: " + str(sum(train_y)))
     return [train,np.array(train_y),test, np.array(test_y)]
 
 
 if __name__=="__main__":
-    print "loading data...",
+    print("loading data...")
     x = cPickle.load(open("movie_Doc.p","rb"))
     revs, W, W2, word_idx_map, vocab = x[0], x[1], x[2], x[3], x[4]
     idx_word_map = {}
     for w in word_idx_map:
         idx_word_map[word_idx_map[w]] = w
-    print "data loaded!"
+    print("data loaded!")
     mode= sys.argv[1]
     word_vectors = sys.argv[2]
     test_fold = int(sys.argv[3])
     if mode=="-nonstatic":
-        print "model architecture: CNN-non-static"
+        print("model architecture: CNN-non-static")
         non_static=True
     elif mode=="-static":
-        print "model architecture: CNN-static"
+        print("model architecture: CNN-static")
         non_static=False
     execfile("conv_net_classes.py")
     if word_vectors=="-rand":
-        print "using: random vectors"
+        print("using: random vectors")
         U = W2
     elif word_vectors=="-word2vec":
-        print "using: word2vec vectors"
+        print("using: word2vec vectors")
         U = W
     results = []
     r = range(0,10)
@@ -558,6 +558,6 @@ if __name__=="__main__":
                               dropout_rate=[0.5],
                               sen_dropout_rate=[0.5],
                               whether_train_sen=True)
-        print "cv: " + str(i) + ", perf: " + str(perf)
+        print("cv: " + str(i) + ", perf: " + str(perf))
         results.append(perf)
-    print str(np.mean(results))
+    print(str(np.mean(results)))

@@ -1,5 +1,5 @@
 import numpy as np
-import cPickle
+import _pickle as cPickle
 from collections import defaultdict
 import sys, re
 import pandas as pd
@@ -26,7 +26,7 @@ def build_data_cv(data_folder, clean_string=True):
     for pos_file in os.listdir(pos_folder):
         if not pos_file.endswith('txt'):continue
         #if pos_file.split('_')[1][0] == '9': continue   #whether to include the 9th fold
-        #print pos_file
+        #print(pos_file
         with open(os.path.join(pos_folder,pos_file), "rb") as f:
             write_file = open(write_file_dir_pos+pos_file,"wb")
             cur_doc = []
@@ -40,7 +40,7 @@ def build_data_cv(data_folder, clean_string=True):
                     vocab[word] += 1
             start_indices = [i for i, x in enumerate(words) if x == "<POS>"]
             end_indices = [i for i, x in enumerate(words) if x == "</POS>"]
-            if len(start_indices) != len(end_indices): print "error found in file " + str(file)
+            if len(start_indices) != len(end_indices): print("error found in file " + str(file)
             indices_pair = zip(start_indices,end_indices)
             remove_indices = []
             for i in indices_pair:
@@ -65,7 +65,7 @@ def build_data_cv(data_folder, clean_string=True):
                 write_file.write(s.strip()+"\t"+str(0)+"\n")
                 num_sen += 1
             '''
-            sentences = sent_tokenize(line.strip())
+            sentences = sent_tokenize(line.strip().decode('utf-8'))
             #sentences = [lines]
             for s in sentences:
                     num_sen += 1
@@ -83,13 +83,13 @@ def build_data_cv(data_folder, clean_string=True):
                         s = s.replace('</POS>','')
                         s = s.replace('< POS >','')
                         s = s.replace('< /POS >','')
-                        write_file.write(s+"\t"+str(1)+"\n")
+                        write_file.write((s+"\t"+str(1)+"\n").encode('utf-8'))
                         num_rational += 1
                         cur_doc.append([s,1])
                         continue
                     if (cur_sen_len) <= 3: continue
                     cur_doc.append([" ".join(sentence).strip(),0])
-                    write_file.write(" ".join(sentence).strip()+"\t"+str(0)+"\n")
+                    write_file.write((" ".join(sentence).strip()+"\t"+str(0)+"\n").encode('utf-8'))
             if len(cur_doc) > max_doc_len: max_doc_len = len(cur_doc)
             total_doc_len += len(cur_doc)
             datum  = {"y":1,
@@ -97,7 +97,7 @@ def build_data_cv(data_folder, clean_string=True):
                           "split": int(pos_file.split('_')[1][0])}
 
             revs.append(datum)
-            write_file.write("1")
+            write_file.write(("1").encode('utf-8'))
             write_file.close()
 
     for neg_file in os.listdir(neg_folder):
@@ -116,7 +116,7 @@ def build_data_cv(data_folder, clean_string=True):
                     vocab[word] += 1
             start_indices = [i for i, x in enumerate(words) if x == "<NEG>"]
             end_indices = [i for i, x in enumerate(words) if x == "</NEG>"]
-            if len(start_indices) != len(end_indices): print "error found in file " + str(file)
+            if len(start_indices) != len(end_indices): print("error found in file " + str(file)
             indices_pair = zip(start_indices,end_indices)
             remove_indices = []
             for i in indices_pair:
@@ -144,7 +144,7 @@ def build_data_cv(data_folder, clean_string=True):
                 num_sen += 1
             '''
 
-            sentences = sent_tokenize(line.strip())
+            sentences = sent_tokenize(line.strip().decode('utf-8'))
             #sentences = [lines]
             for s in sentences:
                     num_sen += 1
@@ -162,13 +162,13 @@ def build_data_cv(data_folder, clean_string=True):
                         s = s.replace('</NEG>','')
                         s = s.replace('< NEG >','')
                         s = s.replace('< /NEG >','')
-                        write_file.write(s+"\t"+str(1)+"\n")
+                        write_file.write((s+"\t"+str(1)+"\n").encode('utf-8'))
                         cur_doc.append([s,1])
                         num_rational += 1
                         continue
                     if (cur_sen_len) <= 2: continue
                     cur_doc.append([" ".join(sentence).strip(),0])
-                    write_file.write(" ".join(sentence).strip()+"\t"+str(0)+"\n")
+                    write_file.write((" ".join(sentence).strip()+"\t"+str(0)+"\n").encode('utf-8'))
 
             if len(cur_doc) > max_doc_len: max_doc_len = len(cur_doc)
             total_doc_len += len(cur_doc)
@@ -177,13 +177,13 @@ def build_data_cv(data_folder, clean_string=True):
                               "split": int(neg_file.split('_')[1][0])}
 
             revs.append(datum)
-            write_file.write("0")
+            write_file.write(("0").encode('utf-8'))
             write_file.close()
-    print "max sentence length: " + str(max_sen_len)
-    print "max document length: " + str(max_doc_len)
-    print "average sentence length: " + str(total_sen_len/num_sen)
-    print "average document length: " + str(total_doc_len/num_doc)
-    print "average number of rationals: " + str(num_rational/num_doc)
+    print("max sentence length: " + str(max_sen_len))
+    print("max document length: " + str(max_doc_len))
+    print("average sentence length: " + str(total_sen_len/num_sen))
+    print("average document length: " + str(total_doc_len/num_doc))
+    print("average number of rationals: " + str(num_rational/num_doc))
     return revs, vocab
 
 def get_W(word_vecs, k=300):
@@ -210,7 +210,7 @@ def load_bin_vec(fname, vocab):
         header = f.readline()
         vocab_size, layer1_size = map(int, header.split())
         binary_len = np.dtype('float32').itemsize * layer1_size
-        for line in xrange(vocab_size):
+        for line in range(vocab_size):
             word = []
             while True:
                 ch = f.read(1)
@@ -263,21 +263,22 @@ def clean_str_sst(string):
     return string.strip().lower()
 
 if __name__=="__main__":    
-    w2v_file = sys.argv[1]     
+    # w2v_file = 'https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz'   
+    w2v_file = 'GoogleNews-vectors-negative300.bin'
     data_folder = ["movies/withRats_pos","movies/withRats_neg"]
-    print "loading data...",        
+    print("loading data...")        
     revs, vocab = build_data_cv(data_folder, clean_string=True)
-    print "data loaded!"
-    print "number of documents: " + str(len(revs))
-    print "vocab size: " + str(len(vocab))
-    print "loading word2vec vectors...",
-    w2v = load_bin_vec(w2v_file, vocab)
-    print "word2vec loaded!"
-    print "num words already in word2vec: " + str(len(w2v))
+    print("data loaded!")
+    print("number of documents: " + str(len(revs)))
+    print("vocab size: " + str(len(vocab)))
+    print("loading word2vec vectors...",
+    w2v = load_bin_vec(w2v_file, vocab))
+    print("word2vec loaded!")
+    print("num words already in word2vec: " + str(len(w2v)))
     add_unknown_words(w2v, vocab,min_df=1)
     W, word_idx_map = get_W(w2v)
     rand_vecs = {}
     add_unknown_words(rand_vecs, vocab,min_df=1)
     W2, _ = get_W(rand_vecs)
     cPickle.dump([revs, W, W2, word_idx_map, vocab], open("movie_Doc.p", "wb"))
-    print "dataset created!"
+    print("dataset created!")
