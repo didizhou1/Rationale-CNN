@@ -320,7 +320,7 @@ def train_conv_net(datasets,
         val_losses = [val_model(i) for i in xrange(n_val_batches)]
         val_perf = 1- np.mean(val_losses)
         print('epoch: %i, training time: %.2f secs, train perf: %.2f %%, val perf: %.2f %%' % (epoch,
-                                                        time.time()-start_time, train_perf * 100., val_perf*100.)))
+                                                        time.time()-start_time, train_perf * 100., val_perf*100.))
         if val_perf >= best_val_perf:
             best_val_perf = val_perf
             test_loss = [test_model_all(i) for i in xrange(n_test_batches)]
@@ -337,7 +337,7 @@ def train_conv_net(datasets,
 
     # sample two correctly predicted positive documents and two correctly predicted negative documents
     # for each document, generate top five rationales with highest probabilities
-    print("negative estimated rationales: "))
+    print("negative estimated rationales: ")
     print(len(idx_word_map))
     for c in correct_index:
         if test_labels[c] == 1:continue
@@ -348,7 +348,7 @@ def train_conv_net(datasets,
             break
 
     count_neg = 0
-    print("positive estimated rationales: "
+    print("positive estimated rationales: ")
     for c in correct_index:
         if test_labels[c] == 0:continue
         print(util.convert(sorted_sentence_value(c)[0],idx_word_map))

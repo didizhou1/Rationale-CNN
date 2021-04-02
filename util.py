@@ -18,10 +18,10 @@ def downsample(X_train):
     '''
     num_pos = np.count_nonzero(X_train[:,-1])
     num_neg = X_train.shape[0]-num_pos
-    print "number of positive sentences before downsampling: "
-    print num_pos
-    print "number of negative sentences before downsampling: "
-    print num_neg
+    # print("number of positive sentences before downsampling: ")
+    # print num_pos
+    # print("number of negative sentences before downsampling: ")
+    # print(num_neg)
     if num_neg>num_pos:
         neg_index =  np.nonzero((X_train[:,-1]==0))
         pos_index = np.nonzero((X_train[:,-1] == 1))
@@ -44,12 +44,12 @@ def downsample_three(X_train):
     num_neg = np.count_nonzero(X_train[:,-1]==0)
     num_neu = np.count_nonzero(X_train[:,-1]==1)
     num_pos = np.count_nonzero(X_train[:,-1]==2)
-    print "number of positive sentences before sampling: "
-    print num_pos
-    print "nubmer of negative sentences before sampling: "
-    print num_neg
-    print "number of neutral sentences before sampling: "
-    print num_neu
+    # print "number of positive sentences before sampling: "
+    # print num_pos
+    # print "nubmer of negative sentences before sampling: "
+    # print num_neg
+    # print "number of neutral sentences before sampling: "
+    # print num_neu
     if num_neg>num_pos:
         neg_index =  np.nonzero((X_train[:,-1]==0))
         pos_index = np.nonzero(X_train[:,-1]==2)
