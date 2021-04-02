@@ -6,6 +6,8 @@ import pandas as pd
 import os
 from nltk.tokenize import sent_tokenize
 from nltk.tokenize import word_tokenize
+from gensim.models import Word2Vec, KeyedVectors
+
 def build_data_cv(data_folder, clean_string=True):
     """
     Loads data and split into 10 folds.
@@ -205,24 +207,26 @@ def load_bin_vec(fname, vocab):
     """
     Loads 300x1 word vecs from Google (Mikolov) word2vec
     """
-    word_vecs = {}
-    with open(fname, "rb") as f:
-        header = f.readline()
-        vocab_size, layer1_size = map(int, header.split())
-        binary_len = np.dtype('float32').itemsize * layer1_size
-        for line in range(vocab_size):
-            word = []
-            while True:
-                ch = f.read(1)
-                if ch == ' ':
-                    word = ''.join(word)
-                    break
-                if ch != '\n':
-                    word.append(ch)   
-            if word in vocab:
-               word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')  
-            else:
-                f.read(binary_len)
+    word2vec_path = 'https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz'
+    word_vecs = KeyedVectors.load_word2vec_format(word2vec_path, binary=True)
+    # word_vecs = {}
+    # with open(fname, "rb") as f:
+    #     header = f.readline()
+    #     vocab_size, layer1_size = map(int, header.split())
+    #     binary_len = np.dtype('float32').itemsize * layer1_size
+    #     for line in range(vocab_size):
+    #         word = []
+    #         while True:
+    #             ch = f.read(1)
+    #             if ch == ' ':
+    #                 word = ''.join(word)
+    #                 break
+    #             if ch != '\n':
+    #                 word.append(ch)   
+    #         if word in vocab:
+    #            word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')  
+    #         else:
+    #             f.read(binary_len)
     return word_vecs
 
 def add_unknown_words(word_vecs, vocab, min_df=1, k=300):
@@ -271,8 +275,8 @@ if __name__=="__main__":
     print("data loaded!")
     print("number of documents: " + str(len(revs)))
     print("vocab size: " + str(len(vocab)))
-    print("loading word2vec vectors...",
-    w2v = load_bin_vec(w2v_file, vocab))
+    print("loading word2vec vectors...")
+    w2v = load_bin_vec(w2v_file, vocab)
     print("word2vec loaded!")
     print("num words already in word2vec: " + str(len(w2v)))
     add_unknown_words(w2v, vocab,min_df=1)
